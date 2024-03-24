@@ -1,24 +1,15 @@
 import React, { useState } from "react";
-
 import Button from "../Button";
-import Toast from "../Toast";
+import ToastShelf from "../ToastShelf";
 
 import styles from "./ToastPlayground.module.css";
-import { AlertOctagon, AlertTriangle, CheckCircle, Info } from "react-feather";
 
 const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
-
-const ICONS_BY_VARIANT = {
-  notice: Info,
-  warning: AlertTriangle,
-  success: CheckCircle,
-  error: AlertOctagon,
-};
 
 function ToastPlayground() {
   const [messageCtrl, setMessageCtrl] = useState("");
   const [variantCtrl, setVariantCtrl] = useState(VARIANT_OPTIONS[0]);
-  const [isToastVisible, setIsToastVisible] = useState(false);
+  const [toasts, setToasts] = useState({});
 
   const onMessageChange = (e) => {
     const value = e.target.value;
@@ -29,33 +20,41 @@ function ToastPlayground() {
     setVariantCtrl(newVariant);
   };
 
-  const showToast = () => {
-    setIsToastVisible(true);
+  const onSubmit = () => {
+    addToast();
+    setMessageCtrl("");
+    setVariantCtrl(VARIANT_OPTIONS[0]);
   };
 
-  const hideToast = () => {
-    setIsToastVisible(false);
+  const addToast = () => {
+    const id = crypto.randomUUID();
+
+    const newToast = {
+      message: messageCtrl,
+      variant: variantCtrl,
+    };
+
+    setToasts({ ...toasts, [id]: newToast });
+  };
+
+  const removeToast = (id) => {
+    const newToasts = { ...toasts };
+    delete newToasts[id];
+    setToasts(newToasts);
   };
 
   return (
     <div className={styles.wrapper}>
       <Header />
 
-      {isToastVisible && (
-        <Toast
-          content={messageCtrl}
-          variant={variantCtrl}
-          icon={ICONS_BY_VARIANT[variantCtrl]}
-          handleDismiss={hideToast}
-        />
-      )}
+      <ToastShelf toasts={toasts} onRemove={removeToast} />
 
       <Form
         msgValue={messageCtrl}
         onMsgChange={onMessageChange}
         variantValue={variantCtrl}
         onVariantChange={onVariantChange}
-        onSubmit={showToast}
+        onSubmit={onSubmit}
       />
     </div>
   );
@@ -78,7 +77,13 @@ const Form = ({
   onSubmit,
 }) => {
   return (
-    <div className={styles.controlsWrapper}>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit();
+      }}
+      className={styles.controlsWrapper}
+    >
       <div className={styles.row}>
         <label
           htmlFor="message"
@@ -121,10 +126,10 @@ const Form = ({
       <div className={styles.row}>
         <div className={styles.label} />
         <div className={`${styles.inputWrapper} ${styles.radioWrapper}`}>
-          <Button onClick={onSubmit}>Pop Toast!</Button>
+          <Button type="submit">Pop Toast!</Button>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 
