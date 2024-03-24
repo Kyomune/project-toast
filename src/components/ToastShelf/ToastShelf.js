@@ -3,7 +3,10 @@ import React, { useContext } from "react";
 import Toast from "../Toast";
 import styles from "./ToastShelf.module.css";
 import { AlertOctagon, AlertTriangle, CheckCircle, Info } from "react-feather";
-import { ToastContext } from "../ToastProvider/ToastProvider";
+import {
+  ToastActionsContext,
+  ToastContext,
+} from "../ToastProvider/ToastProvider";
 
 const ICONS_BY_VARIANT = {
   notice: Info,
@@ -13,7 +16,8 @@ const ICONS_BY_VARIANT = {
 };
 
 function ToastShelf() {
-  const { toasts = {}, removeToast } = useContext(ToastContext);
+  const { toasts = {} } = useContext(ToastContext);
+  const { removeToast } = useContext(ToastActionsContext);
 
   return (
     <ol

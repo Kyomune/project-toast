@@ -1,36 +1,40 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 export const ToastContext = React.createContext({});
+export const ToastActionsContext = React.createContext({});
 
 function ToastProvider({ children }) {
   const [toasts, setToasts] = useState({});
 
-  const addToast = ({ message, variant }) => {
+  const addToast = useCallback(({ message, variant }) => {
     const id = crypto.randomUUID();
-
-    const newToast = {
-      message,
-      variant,
-    };
-
+    const newToast = { message, variant };
     setToasts((currentToasts) => ({ ...currentToasts, [id]: newToast }));
-  };
+  }, []);
 
-  const removeToast = (id) => {
-    const newToasts = { ...toasts };
-    delete newToasts[id];
-    setToasts(newToasts);
-  };
+  const removeToast = useCallback((id) => {
+    setToasts((currentToasts) => {
+      const newToasts = { ...currentToasts };
+      delete newToasts[id];
+      return newToasts;
+    });
+  }, []);
 
-  const clearAllToasts = () => setToasts({});
+  const clearAllToasts = useCallback(() => setToasts({}), []);
 
-  const props = useMemo(
+  const toastActions = useMemo(
     () => ({
-      toasts,
       addToast,
       removeToast,
       clearAllToasts,
+    }),
+    [addToast, removeToast, clearAllToasts]
+  );
+
+  const toastValue = useMemo(
+    () => ({
+      toasts,
     }),
     [toasts]
   );
@@ -38,7 +42,11 @@ function ToastProvider({ children }) {
   useEscapeKey(clearAllToasts);
 
   return (
-    <ToastContext.Provider value={props}>{children}</ToastContext.Provider>
+    <ToastActionsContext.Provider value={toastActions}>
+      <ToastContext.Provider value={toastValue}>
+        {children}
+      </ToastContext.Provider>
+    </ToastActionsContext.Provider>
   );
 }
 

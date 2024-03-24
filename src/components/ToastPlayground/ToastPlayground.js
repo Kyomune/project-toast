@@ -1,47 +1,20 @@
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import Button from "../Button";
 import ToastShelf from "../ToastShelf";
 
 import styles from "./ToastPlayground.module.css";
-import { ToastContext } from "../ToastProvider/ToastProvider";
+import { ToastActionsContext } from "../ToastProvider/ToastProvider";
 
 const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
 
 function ToastPlayground() {
-  const { addToast } = useContext(ToastContext);
-  const [messageCtrl, setMessageCtrl] = useState("");
-  const [variantCtrl, setVariantCtrl] = useState(VARIANT_OPTIONS[0]);
-
-  const onMessageChange = (e) => {
-    const value = e.target.value;
-    setMessageCtrl(value);
-  };
-
-  const onVariantChange = (newVariant) => {
-    setVariantCtrl(newVariant);
-  };
-
-  const onSubmit = () => {
-    if ( !messageCtrl ) return;
-    
-    addToast({ message: messageCtrl, variant: variantCtrl });
-    setMessageCtrl("");
-    setVariantCtrl(VARIANT_OPTIONS[0]);
-  };
-
   return (
     <div className={styles.wrapper}>
-      <Header />
+      <PureHeader />
 
       <ToastShelf />
 
-      <Form
-        msgValue={messageCtrl}
-        onMsgChange={onMessageChange}
-        variantValue={variantCtrl}
-        onVariantChange={onVariantChange}
-        onSubmit={onSubmit}
-      />
+      <PureForm />
     </div>
   );
 }
@@ -55,18 +28,36 @@ const Header = () => {
   );
 };
 
-const Form = ({
-  msgValue,
-  onMsgChange,
-  onVariantChange,
-  variantValue,
-  onSubmit,
-}) => {
+const Form = () => {
+  const { addToast } = useContext(ToastActionsContext);
+  const [messageCtrl, setMessageCtrl] = useState("");
+  const [variantCtrl, setVariantCtrl] = useState(VARIANT_OPTIONS[0]);
+
+  const onMessageChange = useCallback((e) => {
+    const value = e.target.value;
+    setMessageCtrl(value);
+  }, []);
+
+  const onVariantChange = useCallback((newVariant) => {
+    setVariantCtrl(newVariant);
+  }, []);
+
+  const onSubmit = useCallback(
+    (message, variant) => {
+      if (!message) return;
+
+      addToast({ message, variant });
+      setMessageCtrl("");
+      setVariantCtrl(VARIANT_OPTIONS[0]);
+    },
+    [addToast]
+  );
+
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        onSubmit();
+        onSubmit(messageCtrl, variantCtrl);
       }}
       className={styles.controlsWrapper}
     >
@@ -82,8 +73,8 @@ const Form = ({
           <textarea
             id="message"
             className={styles.messageInput}
-            value={msgValue}
-            onChange={onMsgChange}
+            value={messageCtrl}
+            onChange={onMessageChange}
           />
         </div>
       </div>
@@ -92,13 +83,13 @@ const Form = ({
         <div className={styles.label}>Variant</div>
         <div className={`${styles.inputWrapper} ${styles.radioWrapper}`}>
           {VARIANT_OPTIONS.map((variant) => (
-            <label htmlFor={`variant-${variant}`}>
+            <label key={variant} htmlFor={`variant-${variant}`}>
               <input
                 id={`variant-${variant}`}
                 type="radio"
                 name="variant"
                 value={variant}
-                checked={variantValue === variant}
+                checked={variantCtrl === variant}
                 onChange={() => onVariantChange(variant)}
               />
               {variant}
@@ -118,5 +109,9 @@ const Form = ({
     </form>
   );
 };
+
+const PureHeader = React.memo(Header);
+
+const PureForm = React.memo(Form);
 
 export default ToastPlayground;
