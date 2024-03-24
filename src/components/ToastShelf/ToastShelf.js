@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import Toast from "../Toast";
 import styles from "./ToastShelf.module.css";
 import { AlertOctagon, AlertTriangle, CheckCircle, Info } from "react-feather";
+import { ToastContext } from "../ToastProvider/ToastProvider";
 
 const ICONS_BY_VARIANT = {
   notice: Info,
@@ -11,7 +12,9 @@ const ICONS_BY_VARIANT = {
   error: AlertOctagon,
 };
 
-function ToastShelf({ toasts = {}, onRemove }) {
+function ToastShelf() {
+  const { toasts, removeToast } = useContext(ToastContext);
+
   return (
     <ol className={styles.wrapper}>
       <li className={styles.toastWrapper}>
@@ -21,7 +24,7 @@ function ToastShelf({ toasts = {}, onRemove }) {
             content={toast.message}
             variant={toast.variant}
             icon={ICONS_BY_VARIANT[toast.variant]}
-            handleDismiss={() => onRemove(id)}
+            handleDismiss={() => removeToast(id)}
           />
         ))}
       </li>

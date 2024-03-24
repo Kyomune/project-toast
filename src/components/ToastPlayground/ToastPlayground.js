@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Button from "../Button";
 import ToastShelf from "../ToastShelf";
 
 import styles from "./ToastPlayground.module.css";
+import { ToastContext } from "../ToastProvider/ToastProvider";
 
 const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
 
 function ToastPlayground() {
+  const { addToast } = useContext(ToastContext);
   const [messageCtrl, setMessageCtrl] = useState("");
   const [variantCtrl, setVariantCtrl] = useState(VARIANT_OPTIONS[0]);
-  const [toasts, setToasts] = useState({});
 
   const onMessageChange = (e) => {
     const value = e.target.value;
@@ -21,33 +22,16 @@ function ToastPlayground() {
   };
 
   const onSubmit = () => {
-    addToast();
+    addToast({ message: messageCtrl, variant: variantCtrl });
     setMessageCtrl("");
     setVariantCtrl(VARIANT_OPTIONS[0]);
-  };
-
-  const addToast = () => {
-    const id = crypto.randomUUID();
-
-    const newToast = {
-      message: messageCtrl,
-      variant: variantCtrl,
-    };
-
-    setToasts({ ...toasts, [id]: newToast });
-  };
-
-  const removeToast = (id) => {
-    const newToasts = { ...toasts };
-    delete newToasts[id];
-    setToasts(newToasts);
   };
 
   return (
     <div className={styles.wrapper}>
       <Header />
 
-      <ToastShelf toasts={toasts} onRemove={removeToast} />
+      <ToastShelf />
 
       <Form
         msgValue={messageCtrl}
