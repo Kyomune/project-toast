@@ -11,13 +11,6 @@ import VisuallyHidden from "../VisuallyHidden";
 
 import styles from "./Toast.module.css";
 
-const ICONS_BY_VARIANT = {
-  notice: Info,
-  warning: AlertTriangle,
-  success: CheckCircle,
-  error: AlertOctagon,
-};
-
 function Toast({
   icon: Icon,
   content,
@@ -30,10 +23,19 @@ function Toast({
       <div className={styles.iconContainer}>
         {Icon ? <Icon size={24} /> : null}
       </div>
-      <p className={styles.content}>{content}</p>
-      <button onClick={handleDismiss} className={styles.closeButton}>
+      <p className={styles.content}>
+        <VisuallyHidden>
+          {variant} - {content}
+        </VisuallyHidden>
+        {content}
+      </p>
+      <button
+        aria-label="Dismiss message"
+        aria-live="off"
+        onClick={handleDismiss}
+        className={styles.closeButton}
+      >
         <X size={24} />
-        <VisuallyHidden>{alt}</VisuallyHidden>
       </button>
     </div>
   );

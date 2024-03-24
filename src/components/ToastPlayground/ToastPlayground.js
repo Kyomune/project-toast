@@ -22,6 +22,8 @@ function ToastPlayground() {
   };
 
   const onSubmit = () => {
+    if ( !messageCtrl ) return;
+    
     addToast({ message: messageCtrl, variant: variantCtrl });
     setMessageCtrl("");
     setVariantCtrl(VARIANT_OPTIONS[0]);

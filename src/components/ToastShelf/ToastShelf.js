@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 
 import Toast from "../Toast";
 import styles from "./ToastShelf.module.css";
@@ -13,12 +13,29 @@ const ICONS_BY_VARIANT = {
 };
 
 function ToastShelf() {
-  const { toasts, removeToast } = useContext(ToastContext);
+  const { toasts = {}, removeToast, clearAllToasts } = useContext(ToastContext);
+
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key !== "Escape") return;
+      clearAllToasts();
+    };
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [clearAllToasts]);
 
   return (
-    <ol className={styles.wrapper}>
+    <ol
+      role="region"
+      aria-live="polite"
+      aria-label="Notification"
+      className={styles.wrapper}
+    >
       <li className={styles.toastWrapper}>
-        {Object.entries(toasts).map(([id, toast]) => (
+        {Object.entries(toasts)?.map(([id, toast]) => (
           <Toast
             key={id}
             content={toast.message}

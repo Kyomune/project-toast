@@ -13,7 +13,7 @@ function ToastProvider({ children }) {
       variant,
     };
 
-    setToasts({ ...toasts, [id]: newToast });
+    setToasts((currentToasts) => ({ ...currentToasts, [id]: newToast }));
   };
 
   const removeToast = (id) => {
@@ -22,11 +22,14 @@ function ToastProvider({ children }) {
     setToasts(newToasts);
   };
 
+  const clearAllToasts = () => setToasts({});
+
   const props = useMemo(
     () => ({
       toasts,
       addToast,
       removeToast,
+      clearAllToasts,
     }),
     [toasts]
   );
