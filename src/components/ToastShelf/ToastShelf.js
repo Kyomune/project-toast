@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 
 import Toast from "../Toast";
 import styles from "./ToastShelf.module.css";
@@ -13,19 +13,7 @@ const ICONS_BY_VARIANT = {
 };
 
 function ToastShelf() {
-  const { toasts = {}, removeToast, clearAllToasts } = useContext(ToastContext);
-
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key !== "Escape") return;
-      clearAllToasts();
-    };
-    window.addEventListener("keydown", handleEscape);
-
-    return () => {
-      window.removeEventListener("keydown", handleEscape);
-    };
-  }, [clearAllToasts]);
+  const { toasts = {}, removeToast } = useContext(ToastContext);
 
   return (
     <ol

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 export const ToastContext = React.createContext({});
 
@@ -33,6 +34,8 @@ function ToastProvider({ children }) {
     }),
     [toasts]
   );
+
+  useEscapeKey(clearAllToasts);
 
   return (
     <ToastContext.Provider value={props}>{children}</ToastContext.Provider>
